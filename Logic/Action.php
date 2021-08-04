@@ -25,6 +25,30 @@ class Action
     public $_action;
 
     /**
+     * @param int $productId
+     * @param float $qnt
+     * @param \DateTime|null $time
+     * @return \d4yii2\d4store\Logic\Action
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
+    public static function createProduct(
+        int      $productId,
+        float    $qnt,
+        DateTime $time = null
+    ): self {
+        $product = new D4StoreStoreProduct();
+        $product->product_id = $productId;
+        $product->qnt = $qnt;
+        $product->remain_qnt = $qnt;
+        $product->reserved_qnt = $qnt;
+        if (!$product->save()) {
+            throw new D3ActiveRecordException($product);
+        }
+
+        return new self($product, $time);
+    }
+
+    /**
      * Action constructor.
      * @param \d4yii2\d4store\models\D4StoreStoreProduct $storeProduct
      * @param \DateTime|null $time
@@ -71,7 +95,6 @@ class Action
 
     public function out(float $qnt, $model): D4StoreAction
     {
-        if($this->_storeProduct->remain_qnt)
 
         $this->newAction();
         $this->_action->qnt = $qnt;

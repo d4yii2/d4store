@@ -16,7 +16,7 @@ use Yii;
  * @property string $address
  * @property integer $active
  *
- * @property \d4yii2\d4store\models\D4StoreStack[] $d4storeStacks
+ * @property \d4yii2\d4store\models\D4StoreStack[] $d4StoreStacks
  * @property string $aliasModel
  */
 abstract class D4StoreStore extends \yii\db\ActiveRecord
@@ -31,18 +31,6 @@ abstract class D4StoreStore extends \yii\db\ActiveRecord
     {
         return 'd4store_store';
     }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        $behaviors = [
-        ];
-        return $behaviors;
-    }
-
 
     /**
      * @inheritdoc

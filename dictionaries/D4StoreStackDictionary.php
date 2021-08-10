@@ -10,7 +10,7 @@ use yii\helpers\ArrayHelper;
 class D4StoreStackDictionary
 {
 
-    private const CACHE_KEY_LIST = 'D4StoreStackDictionaryList';
+    private const CACHE_KEY_LIST = 'D4StoreStackDictionaryListA';
 
     public static function getList(int $companyId): array
     {
@@ -21,7 +21,7 @@ class D4StoreStackDictionary
                     D4StoreStack::find()
                         ->select([
                             'id' => '`d4store_stack`.`id`',
-                            'name' => '`d4store_stack`.`name`',
+                            'name' => 'CONCAT(d4store_store.name, \' \',  `d4store_stack`.`name`)',
                             //'name' => 'CONCAT(code,\' \',name)'
                         ])
                         ->innerJoin(

@@ -15,12 +15,13 @@ use d3system\behaviors\D3DateTimeBehavior;
  * @property integer $store_product_id
  * @property string $type
  * @property integer $stack_id
+ * @property string $is_active
  * @property string $time
  * @property string $qnt
  * @property integer $ref_model_id
  * @property integer $ref_model_record_id
  *
- * @property \d4yii2\d4store\models\D4StoreActionRef[] $d4storeActionRefs
+ * @property \d4yii2\d4store\models\D4StoreActionRef[] $d4StoreActionRefs
  * @property \d4yii2\d4store\models\SysModels $refModel
  * @property \d4yii2\d4store\models\D4StoreStack $stack
  * @property \d4yii2\d4store\models\D4StoreStoreProduct $storeProduct
@@ -40,6 +41,8 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
     public const TYPE_FROM_PROCESS = 'From Process';
     public const TYPE_MOVE = 'Move';
     public const TYPE_RESERVATION = 'Reservation';
+    public const IS_ACTIVE_YES = 'Yes';
+    public const IS_ACTIVE_NOT = 'Not';
     /**
      * @inheritdoc
      */
@@ -70,7 +73,7 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            'required' => [['store_product_id', 'type', 'qnt', 'ref_model_id', 'ref_model_record_id'], 'required'],
+            'required' => [['store_product_id', 'type', 'qnt'], 'required'],
             'enum-type' => ['type', 'in', 'range' => [
                     self::TYPE_IN,
                     self::TYPE_OUT,
@@ -80,10 +83,15 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
                     self::TYPE_RESERVATION,
                 ]
             ],
+            'enum-is_active' => ['is_active', 'in', 'range' => [
+                    self::IS_ACTIVE_YES,
+                    self::IS_ACTIVE_NOT,
+                ]
+            ],
             'tinyint Unsigned' => [['ref_model_id'],'integer' ,'min' => 0 ,'max' => 255],
             'smallint Unsigned' => [['stack_id'],'integer' ,'min' => 0 ,'max' => 65535],
             'integer Unsigned' => [['id','store_product_id','ref_model_record_id'],'integer' ,'min' => 0 ,'max' => 4294967295],
-            [['type'], 'string'],
+            [['type', 'is_active'], 'string'],
             [['time'], 'safe'],
             [['qnt'], 'number'],
             [['ref_model_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d4yii2\d4store\models\SysModels::className(), 'targetAttribute' => ['ref_model_id' => 'id']],
@@ -103,6 +111,7 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
             'store_product_id' => Yii::t('d4store', 'Store Product ID'),
             'type' => Yii::t('d4store', 'Type'),
             'stack_id' => Yii::t('d4store', 'Stack ID'),
+            'is_active' => Yii::t('d4store', 'Is Active'),
             'time' => Yii::t('d4store', 'Time'),
             'qnt' => Yii::t('d4store', 'Qnt'),
             'ref_model_id' => Yii::t('d4store', 'Ref Model ID'),
@@ -181,6 +190,32 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
             self::TYPE_FROM_PROCESS => Yii::t('d4store', 'From Process'),
             self::TYPE_MOVE => Yii::t('d4store', 'Move'),
             self::TYPE_RESERVATION => Yii::t('d4store', 'Reservation'),
+        ];
+    }
+
+    /**
+     * get column is_active enum value label
+     * @param string $value
+     * @return string
+     */
+    public static function getIsActiveValueLabel($value): string
+    {
+        if(!$value){
+            return '';
+        }
+        $labels = self::optsIsActive();
+        return $labels[$value] ?? $value;
+    }
+
+    /**
+     * column is_active ENUM value labels
+     * @return string[]
+     */
+    public static function optsIsActive(): array
+    {
+        return [
+            self::IS_ACTIVE_YES => Yii::t('d4store', 'Yes'),
+            self::IS_ACTIVE_NOT => Yii::t('d4store', 'Not'),
         ];
     }
     /**
@@ -275,5 +310,35 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
     public function setTypeReservation(): void
     {
         $this->type = self::TYPE_RESERVATION;
+    }
+    /**
+     * @return bool
+     */
+    public function isIsActiveYes(): bool
+    {
+        return $this->is_active === self::IS_ACTIVE_YES;
+    }
+
+     /**
+     * @return void
+     */
+    public function setIsActiveYes(): void
+    {
+        $this->is_active = self::IS_ACTIVE_YES;
+    }
+    /**
+     * @return bool
+     */
+    public function isIsActiveNot(): bool
+    {
+        return $this->is_active === self::IS_ACTIVE_NOT;
+    }
+
+     /**
+     * @return void
+     */
+    public function setIsActiveNot(): void
+    {
+        $this->is_active = self::IS_ACTIVE_NOT;
     }
 }

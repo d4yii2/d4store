@@ -51,7 +51,7 @@ class m210804_190707_init  extends Migration {
                 `store_product_id` int(10) unsigned NOT NULL  , 
                 `type` enum(\'In\',\'Out\',\'To Process\',\'From Process\',\'Move\',\'Reservation\') COLLATE latin1_swedish_ci NOT NULL  , 
                 `stack_id` smallint(5) unsigned NULL  , 
-                `time` timestamp NOT NULL  DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP , 
+                `time` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 `qnt` decimal(13,3) unsigned NOT NULL  , 
                 `ref_model_id` tinyint(3) unsigned NOT NULL  , 
                 `ref_model_record_id` int(10) unsigned NOT NULL  , 

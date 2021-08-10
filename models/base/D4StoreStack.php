@@ -16,7 +16,7 @@ use Yii;
  * @property string $notes
  * @property integer $active
  *
- * @property \d4yii2\d4store\models\D4StoreAction[] $d4storeActions
+ * @property \d4yii2\d4store\models\D4StoreAction[] $d4StoreActions
  * @property \d4yii2\d4store\models\D4StoreStore $store
  * @property string $aliasModel
  */
@@ -32,18 +32,6 @@ abstract class D4StoreStack extends \yii\db\ActiveRecord
     {
         return 'd4store_stack';
     }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        $behaviors = [
-        ];
-        return $behaviors;
-    }
-
 
     /**
      * @inheritdoc
@@ -100,7 +88,7 @@ abstract class D4StoreStack extends \yii\db\ActiveRecord
      */
     public function getStore()
     {
-        return $this->hasOne(\d4yii2\d4store\models\D4StoreStore::className(), ['id' => 'store_id'])->inverseOf('d4storeStacks');
+        return $this->hasOne(\d4yii2\d4store\models\D4StoreStore::className(), ['id' => 'store_id'])->inverseOf('d4StoreStacks');
     }
 
 

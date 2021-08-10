@@ -65,7 +65,7 @@ class Action
     public function in(D4StoreStack $stack, $model): D4StoreAction
     {
         $this->_action = $this->newAction();
-
+        $this->_action->setIsActiveYes();
         $this->_action->qnt = $this->_storeProduct->qnt;
         $this->_action->setTypeIn();
         $this->_action->stack_id = $stack->id;
@@ -78,25 +78,40 @@ class Action
         return $this->_action;
     }
 
-    public function move(D4StoreStack $stack, $model): D4StoreAction
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
+    public function move(D4StoreStack $stack, $model = null): D4StoreAction
     {
+        $this->setMoveActionsIsNotActive();
+
         $this->_action = $this->newAction();
-        $this->_action->qnt = $this->_storeProduct->qnt;
+        $this->_action->setIsActiveYes();
+        $this->_action->qnt = $this->_storeProduct->remain_qnt;
         $this->_action->setTypeMove();
         $this->_action->stack_id = $stack->id;
-
-        $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
-        $this->_action->ref_model_record_id = $model->id;
+        if($model) {
+            $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
+            $this->_action->ref_model_record_id = $model->id;
+        }
         if (!$this->_action->save()) {
             throw new D3ActiveRecordException($this->_action);
         }
         return $this->_action;
     }
 
+    /**
+     * @param float $qnt
+     * @param $model
+     * @return \d4yii2\d4store\models\D4StoreAction
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
     public function out(float $qnt, $model): D4StoreAction
     {
+        $this->setMoveActionsIsNotActive();
 
         $this->newAction();
+        $this->_action->setIsActiveYes();
         $this->_action->qnt = $qnt;
         $this->_action->setTypeOut();
         $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
@@ -118,7 +133,7 @@ class Action
     /**
      * @throws \d3system\exceptions\D3ActiveRecordException
      */
-    public function addRef($model)
+    public function addRef($model): D4StoreActionRef
     {
         $ref = new D4StoreActionRef();
         $ref->action_id = $this->_action->id;
@@ -128,5 +143,30 @@ class Action
             throw new D3ActiveRecordException($ref);
         }
         return $ref;
+    }
+
+    private function setMoveActionsIsNotActive(): void
+    {
+        foreach ($this->_storeProduct->d4storeActions as $action) {
+            if ($action->isIsActiveNot()) {
+                continue;
+            }
+            if (!in_array(
+                $action->type,
+                [
+                    D4StoreAction::TYPE_IN,
+                    D4StoreAction::TYPE_MOVE,
+                    D4StoreAction::TYPE_TO_PROCESS,
+                    D4StoreAction::TYPE_FROM_PROCESS
+                ],
+                true
+            )) {
+                continue;
+            }
+            $action->setIsActiveNot();
+            if (!$action->save()) {
+                throw new D3ActiveRecordException($action);
+            }
+        }
     }
 }

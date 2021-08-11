@@ -36,6 +36,40 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
             ->one();
     }
 
+    public function getModelIdFromRef(string $modelClassName): ?int
+    {
+        return $this
+            ->getD4storeActions()
+            ->select(['d4store_action_ref.model_record_id'])
+            ->innerJoin(
+                'd4store_action_ref',
+                'd4store_action.id = d4store_action_ref.action_id'
+            )
+            ->where([
+                'd4store_action_ref.model_id' => SysModelsDictionary::getIdByClassName($modelClassName)
+            ])
+            ->scalar();
+    }
+
+    /**
+     * @return \d4yii2\d4store\models\D4StoreAction|null
+     */
+    public function getActionStack(): ?D4StoreAction
+    {
+        return $this
+            ->getD4storeActions()
+            ->andWhere([
+                'is_active' => D4StoreAction::IS_ACTIVE_YES,
+                'type' => [
+                    D4StoreAction::TYPE_IN,
+                    D4StoreAction::TYPE_MOVE,
+                    D4StoreAction::TYPE_TO_PROCESS,
+                    D4StoreAction::TYPE_FROM_PROCESS,
+                ]
+            ])
+            ->one();
+    }
+
     /**
      * @throws \yii\web\HttpException
      */

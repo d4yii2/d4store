@@ -11,6 +11,7 @@ use d4yii2\d4store\models\D4StoreActionRef;
 use d4yii2\d4store\models\D4StoreStack;
 use d4yii2\d4store\models\D4StoreStoreProduct;
 use DateTime;
+use yii\db\Exception;
 
 class Action
 {
@@ -40,7 +41,7 @@ class Action
         $product->product_id = $productId;
         $product->qnt = $qnt;
         $product->remain_qnt = $qnt;
-        $product->reserved_qnt = $qnt;
+        $product->reserved_qnt = 0;
         if (!$product->save()) {
             throw new D3ActiveRecordException($product);
         }
@@ -70,6 +71,32 @@ class Action
         $this->_action->setTypeIn();
         $this->_action->stack_id = $stack->id;
 
+        $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
+        $this->_action->ref_model_record_id = $model->id;
+        if (!$this->_action->save()) {
+            throw new D3ActiveRecordException($this->_action);
+        }
+        return $this->_action;
+    }
+
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws \yii\db\Exception
+     */
+    public function reservation(float $qnt, $model): D4StoreAction
+    {
+        $this->_storeProduct->reserved_qnt += $qnt;
+        if ($this->_storeProduct->reserved_qnt > $this->_storeProduct->remain_qnt) {
+            throw new Exception('Try reserve more remain quantity');
+        }
+        if (!$this->_storeProduct->save()) {
+            throw new D3ActiveRecordException($this->_storeProduct);
+        }
+
+        $this->_action = $this->newAction();
+        $this->_action->setIsActiveYes();
+        $this->_action->qnt = $qnt;
+        $this->_action->setTypeReservation();
         $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
         $this->_action->ref_model_record_id = $model->id;
         if (!$this->_action->save()) {

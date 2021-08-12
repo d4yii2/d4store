@@ -4,6 +4,8 @@
 
 namespace d4yii2\d4store\models\base;
 
+use d3modules\d3invoices\dictionary\InvVatsDictionary;
+use d3system\dictionaries\SysModelsDictionary;
 use Yii;
 
 
@@ -32,18 +34,6 @@ abstract class D4StoreActionRef extends \yii\db\ActiveRecord
         return 'd4store_action_ref';
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        $behaviors = [
-        ];
-        return $behaviors;
-    }
-
-
     /**
      * @inheritdoc
      */
@@ -54,7 +44,8 @@ abstract class D4StoreActionRef extends \yii\db\ActiveRecord
             'tinyint Unsigned' => [['model_id'],'integer' ,'min' => 0 ,'max' => 255],
             'integer Unsigned' => [['id','action_id','model_record_id'],'integer' ,'min' => 0 ,'max' => 4294967295],
             [['action_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d4yii2\d4store\models\D4StoreAction::className(), 'targetAttribute' => ['action_id' => 'id']],
-            [['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d4yii2\d4store\models\SysModels::className(), 'targetAttribute' => ['model_id' => 'id']]
+            //[['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d4yii2\d4store\models\SysModels::className(), 'targetAttribute' => ['model_id' => 'id']],
+            ['model_id', 'in', 'range' => array_keys(SysModelsDictionary::getClassList())]
         ];
     }
 

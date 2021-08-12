@@ -174,7 +174,7 @@ class Action
 
     private function setMoveActionsIsNotActive(): void
     {
-        foreach ($this->_storeProduct->d4storeActions as $action) {
+        foreach ($this->_storeProduct->d4StoreActions as $action) {
             if ($action->isIsActiveNot()) {
                 continue;
             }

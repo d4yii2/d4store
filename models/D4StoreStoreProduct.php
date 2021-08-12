@@ -39,7 +39,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     public function getModelIdFromRef(string $modelClassName): ?int
     {
         return $this
-            ->getD4storeActions()
+            ->getD4StoreActions()
             ->select(['d4store_action_ref.model_record_id'])
             ->innerJoin(
                 'd4store_action_ref',
@@ -57,7 +57,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     public function getActionStack(): ?D4StoreAction
     {
         return $this
-            ->getD4storeActions()
+            ->getD4StoreActions()
             ->andWhere([
                 'is_active' => D4StoreAction::IS_ACTIVE_YES,
                 'type' => [

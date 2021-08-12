@@ -132,7 +132,7 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
      */
     public function getRefModel()
     {
-        return $this->hasOne(\d4yii2\d4store\models\SysModels::className(), ['id' => 'ref_model_id'])->inverseOf('d4storeActions');
+        return $this->hasOne(\d4yii2\d4store\models\SysModels::className(), ['id' => 'ref_model_id'])->inverseOf('d4StoreActions');
     }
 
     /**
@@ -140,7 +140,7 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
      */
     public function getStack()
     {
-        return $this->hasOne(\d4yii2\d4store\models\D4StoreStack::className(), ['id' => 'stack_id'])->inverseOf('d4storeActions');
+        return $this->hasOne(\d4yii2\d4store\models\D4StoreStack::className(), ['id' => 'stack_id'])->inverseOf('d4StoreActions');
     }
 
     /**
@@ -148,7 +148,7 @@ abstract class D4StoreAction extends \yii\db\ActiveRecord
      */
     public function getStoreProduct()
     {
-        return $this->hasOne(\d4yii2\d4store\models\D4StoreStoreProduct::className(), ['id' => 'store_product_id'])->inverseOf('d4storeActions');
+        return $this->hasOne(\d4yii2\d4store\models\D4StoreStoreProduct::className(), ['id' => 'store_product_id'])->inverseOf('d4StoreActions');
     }
 
 

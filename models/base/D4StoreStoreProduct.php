@@ -16,7 +16,7 @@ use Yii;
  * @property string $remain_qnt
  * @property string $reserved_qnt
  *
- * @property \d4yii2\d4store\models\D4storeAction[] $d4storeActions
+ * @property \d4yii2\d4store\models\D4StoreAction[] $d4StoreActions
  * @property \d4yii2\d4store\models\D3productProduct $product
  * @property string $aliasModel
  */
@@ -32,18 +32,6 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
     {
         return 'd4store_store_product';
     }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        $behaviors = [
-        ];
-        return $behaviors;
-    }
-
 
     /**
      * @inheritdoc
@@ -76,9 +64,9 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getD4storeActions()
+    public function getD4StoreActions()
     {
-        return $this->hasMany(\d4yii2\d4store\models\D4storeAction::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
+        return $this->hasMany(\d4yii2\d4store\models\D4StoreAction::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
     }
 
     /**

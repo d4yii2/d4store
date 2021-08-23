@@ -42,6 +42,35 @@ class Action
         $product->qnt = $qnt;
         $product->remain_qnt = $qnt;
         $product->reserved_qnt = 0;
+        $product->setStatusActive();
+        $product->setTypeRegular();
+        if (!$product->save()) {
+            throw new D3ActiveRecordException($product);
+        }
+
+        return new self($product, $time);
+    }
+
+
+    /**
+     * @param int $productId
+     * @param float $qnt
+     * @param \DateTime|null $time
+     * @return static
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
+    public static function createProductInOut(
+        int      $productId,
+        float    $qnt,
+        DateTime $time = null
+    ): self {
+        $product = new D4StoreStoreProduct();
+        $product->product_id = $productId;
+        $product->qnt = $qnt;
+        $product->remain_qnt = $qnt;
+        $product->reserved_qnt = 0;
+        $product->setStatusPlan();
+        $product->setTypeInOut();
         if (!$product->save()) {
             throw new D3ActiveRecordException($product);
         }
@@ -51,10 +80,10 @@ class Action
 
     /**
      * Action constructor.
-     * @param \d4yii2\d4store\models\D4StoreStoreProduct $storeProduct
+     * @param \d4yii2\d4store\models\D4StoreStoreProduct|null $storeProduct
      * @param \DateTime|null $time
      */
-    public function __construct(D4StoreStoreProduct $storeProduct, DateTime $time = null)
+    public function __construct(D4StoreStoreProduct $storeProduct = null, DateTime $time = null)
     {
         $this->_storeProduct = $storeProduct;
         $this->_time = $time ?? new DateTime();
@@ -69,6 +98,25 @@ class Action
         $this->_action->setIsActiveYes();
         $this->_action->qnt = $this->_storeProduct->qnt;
         $this->_action->setTypeIn();
+        $this->_action->stack_id = $stack->id;
+
+        $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
+        $this->_action->ref_model_record_id = $model->id;
+        if (!$this->_action->save()) {
+            throw new D3ActiveRecordException($this->_action);
+        }
+        return $this->_action;
+    }
+
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
+    public function fromProcess(D4StoreStack $stack, $model): D4StoreAction
+    {
+        $this->_action = $this->newAction();
+        $this->_action->setIsActiveYes();
+        $this->_action->qnt = $this->_storeProduct->qnt;
+        $this->_action->setTypeFromProcess();
         $this->_action->stack_id = $stack->id;
 
         $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
@@ -103,6 +151,21 @@ class Action
             throw new D3ActiveRecordException($this->_action);
         }
         return $this->_action;
+    }
+
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws \yii\db\Exception|\Throwable
+     */
+    public function cancelReservation(D4StoreAction $action)
+    {
+        $this->_storeProduct = $action->storeProduct;
+        $this->_storeProduct->reserved_qnt -= $action->qnt;
+        $this->_storeProduct->save();
+        foreach ($action->d4StoreActionRefs as $ref) {
+            $ref->delete();
+        }
+        $action->delete();
     }
 
     /**

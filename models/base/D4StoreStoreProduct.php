@@ -15,8 +15,10 @@ use Yii;
  * @property string $qnt
  * @property string $remain_qnt
  * @property string $reserved_qnt
+ * @property string $status
+ * @property string $type
  *
- * @property \d4yii2\d4store\models\D4StoreAction[] $d4StoreActions
+ * @property \d4yii2\d4store\models\D4storeAction[] $d4storeActions
  * @property \d4yii2\d4store\models\D3productProduct $product
  * @property string $aliasModel
  */
@@ -25,6 +27,15 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
 
 
 
+    /**
+    * ENUM field values
+    */
+    public const STATUS_PLAN = 'Plan';
+    public const STATUS_IN_PROCESS = 'In Process';
+    public const STATUS_ACTIVE = 'Active';
+    public const STATUS_CLOSED = 'Closed';
+    public const TYPE_REGULAR = 'Regular';
+    public const TYPE_IN_OUT = 'In Out';
     /**
      * @inheritdoc
      */
@@ -40,9 +51,22 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
     {
         return [
             'required' => [['product_id'], 'required'],
+            'enum-status' => ['status', 'in', 'range' => [
+                    self::STATUS_PLAN,
+                    self::STATUS_IN_PROCESS,
+                    self::STATUS_ACTIVE,
+                    self::STATUS_CLOSED,
+                ]
+            ],
+            'enum-type' => ['type', 'in', 'range' => [
+                    self::TYPE_REGULAR,
+                    self::TYPE_IN_OUT,
+                ]
+            ],
             'smallint Unsigned' => [['product_id'],'integer' ,'min' => 0 ,'max' => 65535],
             'integer Unsigned' => [['id'],'integer' ,'min' => 0 ,'max' => 4294967295],
             [['qnt', 'remain_qnt', 'reserved_qnt'], 'number'],
+            [['status', 'type'], 'string'],
             [['product_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d4yii2\d4store\models\D3productProduct::className(), 'targetAttribute' => ['product_id' => 'id']]
         ];
     }
@@ -58,15 +82,17 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
             'qnt' => Yii::t('d4store', 'Qnt'),
             'remain_qnt' => Yii::t('d4store', 'Remain Qnt'),
             'reserved_qnt' => Yii::t('d4store', 'Reserved Qnt'),
+            'status' => Yii::t('d4store', 'Status'),
+            'type' => Yii::t('d4store', 'Type'),
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getD4StoreActions()
+    public function getD4storeActions()
     {
-        return $this->hasMany(\d4yii2\d4store\models\D4StoreAction::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
+        return $this->hasMany(\d4yii2\d4store\models\D4storeAction::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
     }
 
     /**
@@ -74,7 +100,7 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
      */
     public function getProduct()
     {
-        return $this->hasOne(\d4yii2\d4store\models\D3productProduct::className(), ['id' => 'product_id'])->inverseOf('d4storeStoreProducts');
+        return $this->hasOne(\d4yii2\d4store\models\D3productProduct::className(), ['id' => 'product_id'])->inverseOf('d4StoreStoreProducts');
     }
 
 
@@ -88,4 +114,151 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
         return new \d4yii2\d4store\models\D4StoreStoreProductQuery(get_called_class());
     }
 
+
+    /**
+     * get column status enum value label
+     * @param string $value
+     * @return string
+     */
+    public static function getStatusValueLabel($value): string
+    {
+        if(!$value){
+            return '';
+        }
+        $labels = self::optsStatus();
+        return $labels[$value] ?? $value;
+    }
+
+    /**
+     * column status ENUM value labels
+     * @return string[]
+     */
+    public static function optsStatus(): array
+    {
+        return [
+            self::STATUS_PLAN => Yii::t('d4store', 'Plan'),
+            self::STATUS_IN_PROCESS => Yii::t('d4store', 'In Process'),
+            self::STATUS_ACTIVE => Yii::t('d4store', 'Active'),
+            self::STATUS_CLOSED => Yii::t('d4store', 'Closed'),
+        ];
+    }
+
+    /**
+     * get column type enum value label
+     * @param string $value
+     * @return string
+     */
+    public static function getTypeValueLabel($value): string
+    {
+        if(!$value){
+            return '';
+        }
+        $labels = self::optsType();
+        return $labels[$value] ?? $value;
+    }
+
+    /**
+     * column type ENUM value labels
+     * @return string[]
+     */
+    public static function optsType(): array
+    {
+        return [
+            self::TYPE_REGULAR => Yii::t('d4store', 'Regular'),
+            self::TYPE_IN_OUT => Yii::t('d4store', 'In Out'),
+        ];
+    }
+    /**
+    * ENUM field values
+    */
+    /**
+     * @return bool
+     */
+    public function isStatusPlan(): bool
+    {
+        return $this->status === self::STATUS_PLAN;
+    }
+
+     /**
+     * @return void
+     */
+    public function setStatusPlan(): void
+    {
+        $this->status = self::STATUS_PLAN;
+    }
+    /**
+     * @return bool
+     */
+    public function isStatusInProcess(): bool
+    {
+        return $this->status === self::STATUS_IN_PROCESS;
+    }
+
+     /**
+     * @return void
+     */
+    public function setStatusInProcess(): void
+    {
+        $this->status = self::STATUS_IN_PROCESS;
+    }
+    /**
+     * @return bool
+     */
+    public function isStatusActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+     /**
+     * @return void
+     */
+    public function setStatusActive(): void
+    {
+        $this->status = self::STATUS_ACTIVE;
+    }
+    /**
+     * @return bool
+     */
+    public function isStatusClosed(): bool
+    {
+        return $this->status === self::STATUS_CLOSED;
+    }
+
+     /**
+     * @return void
+     */
+    public function setStatusClosed(): void
+    {
+        $this->status = self::STATUS_CLOSED;
+    }
+    /**
+     * @return bool
+     */
+    public function isTypeRegular(): bool
+    {
+        return $this->type === self::TYPE_REGULAR;
+    }
+
+     /**
+     * @return void
+     */
+    public function setTypeRegular(): void
+    {
+        $this->type = self::TYPE_REGULAR;
+    }
+    /**
+     * @return bool
+     */
+    public function isTypeInOut(): bool
+    {
+        return $this->type === self::TYPE_IN_OUT;
+    }
+
+     /**
+     * @return void
+     */
+    public function setTypeInOut(): void
+    {
+        $this->type = self::TYPE_IN_OUT;
+    }
 }

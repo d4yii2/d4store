@@ -36,6 +36,20 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
             ->one();
     }
 
+    public static function findByAction(string $modelClassName, int $modelId)
+    {
+        return self::find()
+            ->innerJoin(
+                'd4store_action',
+                'd4store_action.store_product_id = d4store_store_product.id'
+            )
+            ->where([
+                'd4store_action.ref_model_record_id' => $modelId,
+                'd4store_action.ref_model_id' => SysModelsDictionary::getIdByClassName($modelClassName)
+            ])
+            ->one();
+    }
+
     public function getModelIdFromRef(string $modelClassName): ?int
     {
         return $this
@@ -51,29 +65,24 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
             ->scalar();
     }
 
-    /**
-     * @return \d4yii2\d4store\models\D4StoreAction|null
-     */
-    public function getActionStack(): ?D4StoreAction
+    public function getModelIdFromBaseRef(string $modelClassName): ?int
     {
         return $this
             ->getD4StoreActions()
-            ->andWhere([
-                'is_active' => D4StoreAction::IS_ACTIVE_YES,
-                'type' => [
-                    D4StoreAction::TYPE_IN,
-                    D4StoreAction::TYPE_MOVE,
-                    D4StoreAction::TYPE_TO_PROCESS,
-                    D4StoreAction::TYPE_FROM_PROCESS,
-                ]
+            ->select(['d4store_action.ref_model_record_id'])
+            ->where([
+                'd4store_action.ref_model_id' => SysModelsDictionary::getIdByClassName($modelClassName)
             ])
-            ->one();
+            ->scalar();
     }
+
+
 
     /**
      * @throws \yii\web\HttpException
+     * @return self|null
      */
-    public static function findForController(int $id): self
+    public static function findForController(int $id)
     {
         $model = self::findOne($id);
         if (!$model) {

@@ -36,6 +36,9 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
             ->one();
     }
 
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
     public static function findByAction(string $modelClassName, int $modelId)
     {
         return self::find()
@@ -50,6 +53,9 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
             ->one();
     }
 
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
     public function getModelIdFromRef(string $modelClassName): ?int
     {
         return $this
@@ -90,5 +96,19 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
         }
 
         return $model;
+    }
+
+    /**
+     * @return \d4yii2\d4store\models\D4StoreAction|null
+     */
+    public function getStoreActionOne(): ?D4StoreAction
+    {
+        return $this
+            ->getD4StoreActions()
+            ->andWhere([
+                'type' => [D4StoreAction::TYPE_IN, D4StoreAction::TYPE_MOVE],
+                'is_active' => D4StoreAction::IS_ACTIVE_YES
+            ])
+            ->one();
     }
 }

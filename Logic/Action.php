@@ -12,6 +12,7 @@ use d4yii2\d4store\models\D4StoreStack;
 use d4yii2\d4store\models\D4StoreStoreProduct;
 use DateTime;
 use yii\db\Exception;
+use yii\helpers\VarDumper;
 
 class Action
 {
@@ -128,6 +129,57 @@ class Action
     }
 
     /**
+     * registry to precessing products
+     *
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws \yii\base\Exception
+     * @throws \Throwable
+     */
+    public function toProcess($model, float $qnt): D4StoreAction
+    {
+        $this->setMoveActionsIsNotActive();
+        if ($reservationAction = D4StoreAction::find()->getReservationsByModel($model)->one()) {
+            if ($reservationAction->qnt === $qnt) {
+                self::cancelReservation($reservationAction);
+            } else {
+                $reservationAction->qnt -= $qnt;
+                $reservationAction->save();
+            }
+        }
+
+        $this->_storeProduct->remain_qnt -= round($qnt, 3);
+        if ($this->_storeProduct->remain_qnt < 0) {
+            throw new \yii\base\Exception(
+                'Try ToProcess more as remain.' . PHP_EOL
+                . ' RefModel: ' . VarDumper::dumpAsString($model->attributes) . PHP_EOL
+                . ' qnt" ' . VarDumper::dumpAsString($qnt) . PHP_EOL
+                . ' product: ' . VarDumper::dumpAsString($this->_storeProduct->attributes)
+            );
+        }
+        if ($this->_storeProduct->remain_qnt === 0.) {
+            $this->setMoveActionsIsNotActive();
+            $this->_storeProduct->setStatusClosed();
+        }
+        if ($reservationAction = D4StoreAction::find()->getReservationsByModel($model)->one()) {
+            self::cancelReservation($reservationAction);
+        }
+        $this->_action = $this->newAction();
+        $this->_action->setIsActiveNot();
+        $this->_action->qnt = $qnt;
+        $this->_action->setTypeToProcess();
+
+        $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
+        $this->_action->ref_model_record_id = $model->id;
+        if (!$this->_action->save()) {
+            throw new D3ActiveRecordException($this->_action);
+        }
+        if (!$this->_storeProduct->save()) {
+            throw new D3ActiveRecordException($this->_storeProduct);
+        }
+        return $this->_action;
+    }
+
+    /**
      * @throws \d3system\exceptions\D3ActiveRecordException
      * @throws \yii\db\Exception
      */
@@ -155,17 +207,19 @@ class Action
 
     /**
      * @throws \d3system\exceptions\D3ActiveRecordException
-     * @throws \yii\db\Exception|\Throwable
+     * @throws \Throwable
      */
-    public function cancelReservation(D4StoreAction $action)
+    public static function cancelReservation(D4StoreAction $action): void
     {
-        $this->_storeProduct = $action->storeProduct;
-        $this->_storeProduct->reserved_qnt -= $action->qnt;
-        $this->_storeProduct->save();
-        foreach ($action->d4StoreActionRefs as $ref) {
-            $ref->delete();
+        $storeProduct = $action->storeProduct;
+        $storeProduct->reserved_qnt -= $action->qnt;
+        if (!$storeProduct->save()) {
+            throw new D3ActiveRecordException($storeProduct);
         }
-        $action->delete();
+        $action->setIsActiveNot();
+        if (!$action->save()) {
+            throw new D3ActiveRecordException($action);
+        }
     }
 
     /**
@@ -180,7 +234,7 @@ class Action
         $this->_action->qnt = $this->_storeProduct->remain_qnt;
         $this->_action->setTypeMove();
         $this->_action->stack_id = $stack->id;
-        if($model) {
+        if ($model) {
             $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
             $this->_action->ref_model_record_id = $model->id;
         }

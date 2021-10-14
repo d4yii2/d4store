@@ -6,6 +6,7 @@ namespace d4yii2\d4store\Logic;
 
 use d3system\dictionaries\SysModelsDictionary;
 use d3system\exceptions\D3ActiveRecordException;
+use d4yii2\d4store\models\D3productProduct;
 use d4yii2\d4store\models\D4StoreAction;
 use d4yii2\d4store\models\D4StoreActionRef;
 use d4yii2\d4store\models\D4StoreStack;
@@ -29,15 +30,32 @@ class Action
     /**
      * @param int $productId
      * @param float $qnt
+     * @param int|null $unitId
      * @param \DateTime|null $time
      * @return \d4yii2\d4store\Logic\Action
      * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws \yii\db\Exception
      */
     public static function createProduct(
         int      $productId,
         float    $qnt,
+        int $unitId = null,
         DateTime $time = null
     ): self {
+
+        /** converte uz D3productProduct mērvienību */
+        if ($unitId) {
+            if (!$d3Product = D3productProduct::findOne($productId)) {
+                throw new Exception('Can not find D3productProduct. id=' . $productId);
+            }
+            if ($unitId !== $d3Product->unit_id) {
+                if (!$convertedQnt = $d3Product->unitConvertFromTo($qnt, $unitId, $d3Product->unit_id)) {
+                     throw new Exception('Can not convert quantity for  D3productProduct. id=' . $productId . ' UnitId=' . $unitId);
+                }
+                $qnt = (float)$convertedQnt;
+            }
+        }
+
         $product = new D4StoreStoreProduct();
         $product->product_id = $productId;
         $product->qnt = $qnt;
@@ -289,6 +307,9 @@ class Action
         return $ref;
     }
 
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
     private function setMoveActionsIsNotActive(): void
     {
         foreach ($this->_storeProduct->d4StoreActions as $action) {

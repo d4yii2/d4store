@@ -34,7 +34,7 @@ class Action
      * @param \DateTime|null $time
      * @return \d4yii2\d4store\Logic\Action
      * @throws \d3system\exceptions\D3ActiveRecordException
-     * @throws \yii\db\Exception
+     * @throws \yii\db\Exception|\yii\base\Exception
      */
     public static function createProduct(
         int      $productId,

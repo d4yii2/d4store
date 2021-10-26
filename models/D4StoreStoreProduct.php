@@ -2,8 +2,10 @@
 
 namespace d4yii2\d4store\models;
 
+use d3modules\d3productadmin\dictionaries\D3productUnitDictionary;
 use d3system\dictionaries\SysModelsDictionary;
 use \d4yii2\d4store\models\base\D4StoreStoreProduct as BaseD4StoreStoreProduct;
+use Yii;
 use yii\web\HttpException;
 
 /**
@@ -114,5 +116,18 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
                 'is_active' => D4StoreAction::IS_ACTIVE_YES
             ])
             ->one();
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function convertRemainQntToUnit(int $toUnitId): ?float
+    {
+        return $this->product->unitConvertFromTo($this->remain_qnt, $this->product->unit_id, $toUnitId);
+    }
+
+    public function getUnitLabel(): ?string
+    {
+        return D3productUnitDictionary::getLabel(Yii::$app->SysCmp->getActiveCompanyId(), $this->product->unit_id);
     }
 }

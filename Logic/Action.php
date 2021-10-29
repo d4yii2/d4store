@@ -157,12 +157,7 @@ class Action
     {
         $this->setMoveActionsIsNotActive();
         if ($reservationAction = D4StoreAction::find()->getReservationsByModel($model)->one()) {
-            if ($reservationAction->qnt === $qnt) {
-                self::cancelReservation($reservationAction);
-            } else {
-                $reservationAction->qnt -= $qnt;
-                $reservationAction->save();
-            }
+            self::processReservation($reservationAction, $qnt);
         }
 
         $this->_storeProduct->remain_qnt -= round($qnt, 3);
@@ -235,6 +230,23 @@ class Action
             throw new D3ActiveRecordException($storeProduct);
         }
         $action->setIsActiveNot();
+        if (!$action->save()) {
+            throw new D3ActiveRecordException($action);
+        }
+    }
+
+    public static function processReservation(D4StoreAction $action, float $qnt): void
+    {
+        $action->qnt -= $qnt;
+        $storeProduct = $action->storeProduct;
+        $storeProduct->reserved_qnt -= $qnt;
+        if (!$storeProduct->save()) {
+            throw new D3ActiveRecordException($storeProduct);
+        }
+
+        if (!$action->qnt) {
+            $action->setIsActiveNot();
+        }
         if (!$action->save()) {
             throw new D3ActiveRecordException($action);
         }

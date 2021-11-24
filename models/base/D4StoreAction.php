@@ -17,7 +17,7 @@ use d3system\behaviors\D3DateTimeBehavior;
  * @property integer $stack_id
  * @property string $is_active
  * @property string $time
- * @property string $qnt
+ * @property float $qnt
  * @property integer $ref_model_id
  * @property integer $ref_model_record_id
  *

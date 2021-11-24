@@ -155,7 +155,7 @@ class Action
      */
     public function toProcess($model, float $qnt): D4StoreAction
     {
-        $this->setMoveActionsIsNotActive();
+        //$this->setMoveActionsIsNotActive();
         if ($reservationAction = D4StoreAction::find()->getReservationsByModel($model)->one()) {
             self::processReservation($reservationAction, $qnt);
         }

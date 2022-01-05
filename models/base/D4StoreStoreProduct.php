@@ -6,7 +6,6 @@ namespace d4yii2\d4store\models\base;
 
 use Yii;
 
-
 /**
  * This is the base-model class for table "d4store_store_product".
  *
@@ -19,6 +18,8 @@ use Yii;
  * @property string $type
  *
  * @property \d4yii2\d4store\models\D4StoreAction[] $d4StoreActions
+ * @property \d4yii2\d4store\models\D4StorePackProductHistory[] $d4StorePackProductHistories
+ * @property \d4yii2\d4store\models\D4StorePackProduct[] $d4StorePackProducts
  * @property \d4yii2\d4store\models\D3productProduct $product
  * @property string $aliasModel
  */
@@ -98,6 +99,22 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getD4StorePackProductHistories()
+    {
+        return $this->hasMany(\d4yii2\d4store\models\D4StorePackProductHistory::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getD4StorePackProducts()
+    {
+        return $this->hasMany(\d4yii2\d4store\models\D4StorePackProduct::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getProduct()
     {
         return $this->hasOne(\d4yii2\d4store\models\D3productProduct::className(), ['id' => 'product_id'])->inverseOf('d4StoreStoreProducts');
@@ -120,9 +137,9 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
      * @param string $value
      * @return string
      */
-    public static function getStatusValueLabel($value): string
+    public static function getStatusValueLabel(string $value): string
     {
-        if(!$value){
+        if (!$value) {
             return '';
         }
         $labels = self::optsStatus();
@@ -148,9 +165,9 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
      * @param string $value
      * @return string
      */
-    public static function getTypeValueLabel($value): string
+    public static function getTypeValueLabel(string $value): string
     {
-        if(!$value){
+        if (!$value) {
             return '';
         }
         $labels = self::optsType();

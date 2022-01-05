@@ -6,8 +6,8 @@
 <canvas zoom="100">
 <tables>
 <table name="sys_models" view="colnames">
-<left>800</left>
-<top>167</top>
+<left>1046</left>
+<top>281</top>
 <width>105</width>
 <height>114</height>
 <sql_create_table>CREATE TABLE `sys_models` (
@@ -16,12 +16,12 @@
   `class_name` varchar(256) DEFAULT NULL COMMENT 'Class',
   PRIMARY KEY (`id`),
   UNIQUE KEY `table_name` (`table_name`,`class_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=ascii</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=ascii</sql_create_table>
 </table>
 <table name="d4store_action" view="colnames">
-<left>438</left>
-<top>49</top>
-<width>157</width>
+<left>692</left>
+<top>166</top>
+<width>158</width>
 <height>199</height>
 <sql_create_table>CREATE TABLE `d4store_action` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -40,11 +40,11 @@
   CONSTRAINT `d4store_action_ibfk_ref_model` FOREIGN KEY (`ref_model_id`) REFERENCES `sys_models` (`id`),
   CONSTRAINT `d4store_action_ibfk_stack` FOREIGN KEY (`stack_id`) REFERENCES `d4store_stack` (`id`),
   CONSTRAINT `d4store_action_ibfk_store_product` FOREIGN KEY (`store_product_id`) REFERENCES `d4store_store_product` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=143 DEFAULT CHARSET=latin1</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=244 DEFAULT CHARSET=latin1</sql_create_table>
 </table>
 <table name="d4store_action_ref" view="colnames">
-<left>632</left>
-<top>35</top>
+<left>883</left>
+<top>151</top>
 <width>134</width>
 <height>131</height>
 <sql_create_table>CREATE TABLE `d4store_action_ref` (
@@ -57,11 +57,11 @@
   KEY `d3store_action_ref_ibfk_model` (`model_id`),
   CONSTRAINT `d4store_action_ref_ibfk_action` FOREIGN KEY (`action_id`) REFERENCES `d4store_action` (`id`),
   CONSTRAINT `d4store_action_ref_ibfk_model` FOREIGN KEY (`model_id`) REFERENCES `sys_models` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=225 DEFAULT CHARSET=latin1</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=409 DEFAULT CHARSET=latin1</sql_create_table>
 </table>
 <table name="d4store_stack" view="colnames">
-<left>261</left>
-<top>237</top>
+<left>525</left>
+<top>345</top>
 <width>130</width>
 <height>148</height>
 <sql_create_table>CREATE TABLE `d4store_stack` (
@@ -73,11 +73,11 @@
   PRIMARY KEY (`id`),
   KEY `store_id` (`store_id`),
   CONSTRAINT `d4store_stack_ibfk_store` FOREIGN KEY (`store_id`) REFERENCES `d4store_store` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8</sql_create_table>
 </table>
 <table name="d4store_store" view="colnames">
-<left>57</left>
-<top>235</top>
+<left>862</left>
+<top>357</top>
 <width>137</width>
 <height>148</height>
 <sql_create_table>CREATE TABLE `d4store_store` (
@@ -91,8 +91,8 @@
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8</sql_create_table>
 </table>
 <table name="d4store_store_product" view="colnames">
-<left>228</left>
-<top>50</top>
+<left>483</left>
+<top>162</top>
 <width>165</width>
 <height>168</height>
 <sql_create_table>CREATE TABLE `d4store_store_product` (
@@ -106,12 +106,12 @@
   PRIMARY KEY (`id`),
   KEY `d3store_store_product_ibfk_product` (`product_id`),
   CONSTRAINT `d4store_store_product_ibfk_product` FOREIGN KEY (`product_id`) REFERENCES `d3product_product` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=latin1</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=latin1</sql_create_table>
 </table>
 <table name="d3product_product" view="colnames">
-<left>26</left>
-<top>49</top>
-<width>163</width>
+<left>699</left>
+<top>-1</top>
+<width>143</width>
 <height>165</height>
 <sql_create_table>CREATE TABLE `d3product_product` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
@@ -125,7 +125,52 @@
   KEY `product3_product_ibfk_unit` (`unit_id`),
   CONSTRAINT `d3product_product_ibfk_1` FOREIGN KEY (`unit_id`) REFERENCES `d3product_unit` (`id`),
   CONSTRAINT `d3product_product_ibfk_product_type` FOREIGN KEY (`product_type_id`) REFERENCES `d3product_product_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=latin1</sql_create_table>
+</table>
+<table name="d4store_packs" view="colnames">
+<left>391</left>
+<top>343</top>
+<width>127</width>
+<height>118</height>
+<sql_create_table>CREATE TABLE `d4store_packs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `code` char(20) CHARACTER SET utf8 DEFAULT NULL,
+  `notes` text CHARACTER SET utf8,
+  `is_active` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1</sql_create_table>
+</table>
+<table name="d4store_pack_product" view="colnames">
+<left>193</left>
+<top>144</top>
+<width>167</width>
+<height>113</height>
+<sql_create_table>CREATE TABLE `d4store_pack_product` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `store_product_id` int(10) unsigned NOT NULL,
+  `pack_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `d4store_pack_product_ibfk_pack` (`pack_id`),
+  KEY `d4store_pack_product_ibfk_store_product` (`store_product_id`),
+  CONSTRAINT `d4store_pack_product_ibfk_1` FOREIGN KEY (`store_product_id`) REFERENCES `d4store_store_product` (`id`),
+  CONSTRAINT `d4store_pack_product_ibfk_pack` FOREIGN KEY (`pack_id`) REFERENCES `d4store_packs` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1</sql_create_table>
+</table>
+<table name="d4store_pack_product_history" view="colnames">
+<left>396</left>
+<top>-3</top>
+<width>203</width>
+<height>148</height>
+<sql_create_table>CREATE TABLE `d4store_pack_product_history` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `pack_product_id` int(10) unsigned NOT NULL,
+  `action` enum('Add','Removed') NOT NULL,
+  `time` datetime NOT NULL,
+  `user` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `d4store_pack_product_history_ibfk_pack_procukt` (`pack_product_id`),
+  CONSTRAINT `d4store_pack_product_history_ibfk_pack_procukt` FOREIGN KEY (`pack_product_id`) REFERENCES `d4store_pack_product` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1</sql_create_table>
 </table>
 </tables>
 </canvas>

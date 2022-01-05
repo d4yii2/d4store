@@ -108,11 +108,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
         return $this
             ->getD4StoreActions()
             ->andWhere([
-                'type' => [
-                    D4StoreAction::TYPE_IN,
-                    D4StoreAction::TYPE_MOVE,
-                    D4StoreAction::TYPE_FROM_PROCESS,
-                ],
+                'type' => D4StoreAction::STORE_ACTION_TYPES,
                 'is_active' => D4StoreAction::IS_ACTIVE_YES
             ])
             ->one();

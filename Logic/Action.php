@@ -109,6 +109,14 @@ class Action
     }
 
     /**
+     * @return \d4yii2\d4store\models\D4StoreStoreProduct
+     */
+    public function getStoreProduct(): ?D4StoreStoreProduct
+    {
+        return $this->_storeProduct;
+    }
+
+    /**
      * @throws \d3system\exceptions\D3ActiveRecordException
      */
     public function in(D4StoreStack $stack, $model): D4StoreAction

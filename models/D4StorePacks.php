@@ -14,7 +14,7 @@ class D4StorePacks extends BaseD4StorePacks
     /**
      * @throws \d3system\exceptions\D3ActiveRecordException
      */
-    public function addStoreProduct(int $storeProductId)
+    public function addStoreProduct(int $storeProductId): void
     {
         $packProduct = new D4StorePackProduct();
         $packProduct->store_product_id = $storeProductId;
@@ -28,11 +28,11 @@ class D4StorePacks extends BaseD4StorePacks
         $history->pack_id = $this->id;
         $history->setActionAdd();
         $history->time = date('Y-m-d H:i:s');
-        if (Yii::$app->has('user') && $userId = Yii::$app->user-$this->id) {
-            $history->user = $userId;
+        if (Yii::$app->has('user') && $userId = Yii::$app->user->id) {
+            $history->user_id = $userId;
         }
 
-        if (!$packProduct->$history()) {
+        if (!$history->save()) {
             throw new D3ActiveRecordException($history);
         }
 

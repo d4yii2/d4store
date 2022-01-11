@@ -77,7 +77,7 @@ abstract class D4StorePackProduct extends \yii\db\ActiveRecord
      */
     public function getStoreProduct()
     {
-        return $this->hasOne(\d4yii2\d4store\models\D4storeStoreProduct::className(), ['id' => 'store_product_id'])->inverseOf('D4StorePackProducts');
+        return $this->hasOne(\d4yii2\d4store\models\D4StoreStoreProduct::className(), ['id' => 'store_product_id'])->inverseOf('d4StorePackProducts');
     }
 
 

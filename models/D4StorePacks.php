@@ -3,6 +3,7 @@
 namespace d4yii2\d4store\models;
 
 use d3system\exceptions\D3ActiveRecordException;
+use d4yii2\d4store\Logic\Action;
 use d4yii2\d4store\models\base\D4StorePacks as BaseD4StorePacks;
 use Yii;
 
@@ -34,6 +35,23 @@ class D4StorePacks extends BaseD4StorePacks
 
         if (!$history->save()) {
             throw new D3ActiveRecordException($history);
+        }
+    }
+
+    /**
+     * @param \d4yii2\d4store\models\D4StoreStack $stack
+     * @param array $refModels
+     * @return void
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
+    public function moveToStack(D4StoreStack $stack, array $refModels = []): void
+    {
+        foreach ($this->d4StorePackProducts as $packProduct) {
+            $action = new Action($packProduct->storeProduct);
+            $action->move($stack);
+            foreach ($refModels as $ref) {
+                $action->addRef($ref);
+            }
         }
     }
 

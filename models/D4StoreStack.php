@@ -23,11 +23,6 @@ class D4StoreStack extends BaseD4StoreStack
         D4StoreStackDictionary::clearCache();
     }
 
-    public static function optsUnit(): array
-    {
-        return D4StoreStackDictionary::getList();
-    }
-
     /**
      * @throws \yii\web\HttpException
      */

@@ -2,9 +2,9 @@
 
 namespace d4yii2\d4store\models;
 
-use d3modules\d3productadmin\dictionaries\D3productUnitDictionary;
+use d3yii2\d3product\dictionaries\D3productUnitDictionary;
 use d3system\dictionaries\SysModelsDictionary;
-use \d4yii2\d4store\models\base\D4StoreStoreProduct as BaseD4StoreStoreProduct;
+use d4yii2\d4store\models\base\D4StoreStoreProduct as BaseD4StoreStoreProduct;
 use Yii;
 use yii\web\HttpException;
 

@@ -22,8 +22,8 @@ or add
 to the `require` section of your `composer.json` file.
 
 
-## Methods
-
+## Required compnents
+Yii:$app->storePackRecorder as \d3yii2\d3codes\components\CodeRecorder 
 
 ## Usage
 

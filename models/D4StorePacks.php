@@ -35,6 +35,6 @@ class D4StorePacks extends BaseD4StorePacks
         if (!$history->save()) {
             throw new D3ActiveRecordException($history);
         }
-
     }
+
 }

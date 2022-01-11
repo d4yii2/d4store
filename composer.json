@@ -10,7 +10,9 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "*"
+        "yiisoft/yii2": "*",
+        "d3yii2/d3system": "*",
+        "d3yii2/d3product": "*"
     },
     "autoload": {
         "psr-4": {

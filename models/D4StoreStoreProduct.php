@@ -2,6 +2,7 @@
 
 namespace d4yii2\d4store\models;
 
+use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3product\dictionaries\D3productUnitDictionary;
 use d3system\dictionaries\SysModelsDictionary;
 use d4yii2\d4store\models\base\D4StoreStoreProduct as BaseD4StoreStoreProduct;
@@ -125,5 +126,22 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     public function getUnitLabel(): ?string
     {
         return D3productUnitDictionary::getLabel(Yii::$app->SysCmp->getActiveCompanyId(), $this->product->unit_id);
+    }
+
+    /**
+     * @param int $refTypeId
+     * @param int $recordId
+     * @return void
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
+    public function addRef(int $refTypeId, int $recordId): void
+    {
+        $ref = new D4StoreProductRef();
+        $ref->store_product_id = $this->id;
+        $ref->model_record_id = $recordId;
+        $ref->ref_type_id = $refTypeId;
+        if (!$ref->save()) {
+            throw new D3ActiveRecordException($ref);
+        }
     }
 }

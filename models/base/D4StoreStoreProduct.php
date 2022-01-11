@@ -20,6 +20,7 @@ use Yii;
  * @property \d4yii2\d4store\models\D4StoreAction[] $d4StoreActions
  * @property \d4yii2\d4store\models\D4StorePackProductHistory[] $d4StorePackProductHistories
  * @property \d4yii2\d4store\models\D4StorePackProduct[] $d4StorePackProducts
+ * @property \d4yii2\d4store\models\D4StoreProductRef[] $d4StoreProductRefs
  * @property \d4yii2\d4store\models\D3productProduct $product
  * @property string $aliasModel
  */
@@ -110,6 +111,14 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
     public function getD4StorePackProducts()
     {
         return $this->hasMany(\d4yii2\d4store\models\D4StorePackProduct::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getD4StoreProductRefs()
+    {
+        return $this->hasMany(\d4yii2\d4store\models\D4StoreProductRef::className(), ['store_product_id' => 'id'])->inverseOf('storeProduct');
     }
 
     /**

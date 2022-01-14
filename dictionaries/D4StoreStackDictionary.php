@@ -42,16 +42,48 @@ class D4StoreStackDictionary
         );
     }
 
+    public static function getFullList(): array
+    {
+        return Yii::$app->cache->getOrSet(
+            self::createCacheKey('full'),
+            static function () {
+                return ArrayHelper::map(
+                    D4StoreStack::find()
+                        ->select([
+                            'id' => '`d4store_stack`.`id`',
+                            'name' => 'CONCAT(d4store_store.name, \' \',  `d4store_stack`.`name`)',
+                            //'name' => 'CONCAT(code,\' \',name)'
+                        ])
+                        ->innerJoin(
+                            'd4store_store',
+                            'd4store_store.id = d4store_stack.store_id'
+                        )
+                        ->asArray()
+                        ->all(),
+                    'id',
+                    'name'
+                );
+            },
+            60 * 60
+        );
+    }
+
 
     /**
      * get label
      * @param int $companyId
      * @param int $id
      * @return string|null
+     * @deprecated use getLabel2
      */
     public static function getLabel(int $companyId, int $id): ?string
     {
         return self::getList($companyId)[$id] ?? null;
+    }
+
+    public static function getLabel2(int $id): ?string
+    {
+        return self::getFullList()[$id] ?? null;
     }
 
     private static function createCacheKey($companyId): string
@@ -61,6 +93,7 @@ class D4StoreStackDictionary
 
     public static function clearCache(): void
     {
+        Yii::$app->cache->delete(self::createCacheKey('full'));
         foreach (D4StoreStore::find()
                      ->distinct()
                      ->select('company_id')

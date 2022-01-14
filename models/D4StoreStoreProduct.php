@@ -102,9 +102,10 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     }
 
     /**
-     * @return array|\d4yii2\d4store\models\D4StoreAction|\yii\db\ActiveRecord|null
+     * @return \d4yii2\d4store\models\D4StoreAction|null
+     * @noinspection PhpIncompatibleReturnTypeInspection
      */
-    public function getStoreActionActiveOne()
+    public function getStoreActionActiveOne(): ?D4StoreAction
     {
         return $this
             ->getD4StoreActions()

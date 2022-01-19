@@ -97,6 +97,15 @@ class Action
         return new self($product, $time);
     }
 
+    public static function loadAction(D4StoreAction $action, DateTime $time = null): self
+    {
+        $self = new self();
+        $self->_action = $action;
+        $self->_storeProduct = $action->storeProduct;
+        $self->_time = $time ?? new DateTime();
+        return $self;
+    }
+
     /**
      * Action constructor.
      * @param \d4yii2\d4store\models\D4StoreStoreProduct|null $storeProduct
@@ -243,6 +252,9 @@ class Action
         }
     }
 
+    /**
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     */
     public static function processReservation(D4StoreAction $action, float $qnt): void
     {
         $action->qnt -= $qnt;

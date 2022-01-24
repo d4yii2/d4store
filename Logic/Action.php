@@ -48,7 +48,7 @@ class Action
             if (!$d3Product = D3productProduct::findOne($productId)) {
                 throw new Exception('Can not find D3productProduct. id=' . $productId);
             }
-            if ($unitId !== $d3Product->unit_id) {
+            if (!in_array($d3Product->unit_id, $d3Product->getToUnitIds($unitId), false)) {
                 if (!$convertedQnt = $d3Product->unitConvertFromTo($qnt, $unitId, $d3Product->unit_id)) {
                      throw new Exception('Can not convert quantity for  D3productProduct. id=' . $productId . ' UnitId=' . $unitId);
                 }

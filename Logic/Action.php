@@ -28,6 +28,7 @@ class Action
     public $_action;
 
     /**
+     * pievieno store product un pārēķina daudzumu uz bāzes mērvienību
      * @param int $productId
      * @param float $qnt
      * @param int|null $unitId
@@ -48,11 +49,14 @@ class Action
             if (!$d3Product = D3productProduct::findOne($productId)) {
                 throw new Exception('Can not find D3productProduct. id=' . $productId);
             }
-            if (!in_array($d3Product->unit_id, $d3Product->getToUnitIds($unitId), false)) {
-                if (!$convertedQnt = $d3Product->unitConvertFromTo($qnt, $unitId, $d3Product->unit_id)) {
-                     throw new Exception('Can not convert quantity for  D3productProduct. id=' . $productId . ' UnitId=' . $unitId);
+            if ($d3Product->unit_id !== $unitId) {
+                if (!in_array($d3Product->unit_id, $d3Product->getToUnitIds($unitId), false)) {
+                    throw new Exception('Not defined converting for  D3productProduct.id=' . $productId . ' from UnitId=' . $unitId);
                 }
-                $qnt = (float)$convertedQnt;
+                if (!$convertedQnt = $d3Product->unitConvertFromTo($qnt, $unitId, $d3Product->unit_id)) {
+                    throw new Exception('Can not convert quantity for  D3productProduct. id=' . $productId . ' UnitId=' . $unitId);
+                }
+                $qnt = $convertedQnt;
             }
         }
 

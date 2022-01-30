@@ -16,6 +16,7 @@ use Yii;
  * @property string $reserved_qnt
  * @property string $status
  * @property string $type
+ * @property string $code
  *
  * @property \d4yii2\d4store\models\D4StoreAction[] $d4StoreActions
  * @property \d4yii2\d4store\models\D4StorePackProductHistory[] $d4StorePackProductHistories
@@ -69,6 +70,7 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
             'integer Unsigned' => [['id'],'integer' ,'min' => 0 ,'max' => 4294967295],
             [['qnt', 'remain_qnt', 'reserved_qnt'], 'number'],
             [['status', 'type'], 'string'],
+            [['code'], 'string', 'max' => 50],
             [['product_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d4yii2\d4store\models\D3productProduct::className(), 'targetAttribute' => ['product_id' => 'id']]
         ];
     }
@@ -86,6 +88,7 @@ abstract class D4StoreStoreProduct extends \yii\db\ActiveRecord
             'reserved_qnt' => Yii::t('d4store', 'Reserved Qnt'),
             'status' => Yii::t('d4store', 'Status'),
             'type' => Yii::t('d4store', 'Type'),
+            'code' => Yii::t('d4store', 'Code'),
         ];
     }
 

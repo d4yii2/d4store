@@ -21,7 +21,7 @@ class D4StoreStackDictionary
                     D4StoreStack::find()
                         ->select([
                             'id' => '`d4store_stack`.`id`',
-                            'name' => 'CONCAT(d4store_store.name, \' \',  `d4store_stack`.`name`)',
+                            'name' => 'CONCAT(d4store_store.name, \' - \',  `d4store_stack`.`name`)',
                             //'name' => 'CONCAT(code,\' \',name)'
                         ])
                         ->innerJoin(
@@ -30,6 +30,7 @@ class D4StoreStackDictionary
                         )
                         ->where(['d4store_store.company_id' => $companyId])
                         ->orderBy([
+                            '`d4store_store`.`name`' => SORT_ASC,
                             '`d4store_stack`.`name`' => SORT_ASC,
                         ])
                         ->asArray()

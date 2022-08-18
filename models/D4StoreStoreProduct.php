@@ -21,7 +21,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
      * @return static
      * @throws \d3system\exceptions\D3ActiveRecordException
      */
-    public static function findByActionRef(string $modelClassName, int $modelId): self
+    public static function findByActionRef(string $modelClassName, int $modelId): ?self
     {
         return self::find()
             ->innerJoin(

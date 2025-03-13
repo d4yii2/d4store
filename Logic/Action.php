@@ -12,6 +12,7 @@ use d4yii2\d4store\models\D4StoreActionRef;
 use d4yii2\d4store\models\D4StoreStack;
 use d4yii2\d4store\models\D4StoreStoreProduct;
 use DateTime;
+use Throwable;
 use yii\db\Exception;
 use yii\helpers\VarDumper;
 
@@ -34,7 +35,7 @@ class Action
      * @param int|null $unitId
      * @param \DateTime|null $time
      * @return \d4yii2\d4store\Logic\Action
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      * @throws \yii\db\Exception|\yii\base\Exception
      */
     public static function createProduct(
@@ -80,7 +81,7 @@ class Action
      * @param float $qnt
      * @param \DateTime|null $time
      * @return static
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public static function createProductInOut(
         int      $productId,
@@ -130,7 +131,7 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public function in(D4StoreStack $stack, $model): D4StoreAction
     {
@@ -149,7 +150,7 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public function fromProcess(D4StoreStack $stack, $model): D4StoreAction
     {
@@ -170,17 +171,19 @@ class Action
     /**
      * registry to precessing products
      *
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      * @throws \yii\base\Exception
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function toProcess($model, float $qnt): D4StoreAction
     {
         //$this->setMoveActionsIsNotActive();
+        /** rezerveshanu smazina */
         if ($reservationAction = D4StoreAction::find()->getReservationsByModel($model)->one()) {
             self::processReservation($reservationAction, $qnt);
         }
 
+        /** samazina noliktavas atlikumu */
         $this->_storeProduct->remain_qnt -= round($qnt, 3);
         if ($this->_storeProduct->remain_qnt < 0) {
             throw new \yii\base\Exception(
@@ -190,13 +193,19 @@ class Action
                 . ' product: ' . VarDumper::dumpAsString($this->_storeProduct->attributes)
             );
         }
+
+        /** ja produkts viss izmantots, is_atcive = N0 */
         if ($this->_storeProduct->remain_qnt === 0.) {
             $this->setMoveActionsIsNotActive();
             $this->_storeProduct->setStatusClosed();
         }
-        if ($reservationAction = D4StoreAction::find()->getReservationsByModel($model)->one()) {
-            self::cancelReservation($reservationAction);
-        }
+
+//        /**
+//         * atceļ rezvāciju - nekorekti
+//         */
+//        if ($reservationAction = D4StoreAction::find()->getReservationsByModel($model)->one()) {
+//            self::cancelReservation($reservationAction);
+//        }
         $this->_action = $this->newAction();
         $this->_action->setIsActiveNot();
         $this->_action->qnt = $qnt;
@@ -214,7 +223,7 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      * @throws \yii\db\Exception
      */
     public function reservation(float $qnt, $model): D4StoreAction
@@ -240,8 +249,8 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
-     * @throws \Throwable
+     * @throws D3ActiveRecordException
+     * @throws Throwable
      */
     public static function cancelReservation(D4StoreAction $action): void
     {
@@ -257,7 +266,10 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * samazina rezervēto daudzumu
+     * ja vairs nav rezervēts, action uztaisa active Not
+     * @throws D3ActiveRecordException
+     * @throws Exception
      */
     public static function processReservation(D4StoreAction $action, float $qnt): void
     {
@@ -277,7 +289,7 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public function move(D4StoreStack $stack, $model = null): D4StoreAction
     {
@@ -302,7 +314,7 @@ class Action
      * @param float $qnt
      * @param $model
      * @return \d4yii2\d4store\models\D4StoreAction
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public function out(float $qnt, $model): D4StoreAction
     {
@@ -329,7 +341,7 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public function addRef($model): D4StoreActionRef
     {
@@ -344,7 +356,7 @@ class Action
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     private function setMoveActionsIsNotActive(): void
     {

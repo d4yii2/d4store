@@ -3,6 +3,7 @@
 namespace d4yii2\d4store\models;
 
 use d3system\dictionaries\SysModelsDictionary;
+use d3system\exceptions\D3ActiveRecordException;
 use d3system\yii2\db\D3ActiveQuery;
 
 /**
@@ -12,6 +13,9 @@ use d3system\yii2\db\D3ActiveQuery;
  */
 class D4StoreActionQuery extends D3ActiveQuery
 {
+    /**
+     * @throws D3ActiveRecordException
+     */
     public function getReservationsByModel($model): self
     {
         return $this->where([
@@ -22,6 +26,9 @@ class D4StoreActionQuery extends D3ActiveQuery
         ]);
     }
 
+    /**
+     * @throws D3ActiveRecordException
+     */
     public function getFromProcessByModel($model): self
     {
         return $this->where([
@@ -32,6 +39,9 @@ class D4StoreActionQuery extends D3ActiveQuery
         ]);
     }
 
+    /**
+     * @throws D3ActiveRecordException
+     */
     public function getToProcessByModel($model): self
     {
         return $this->where([

@@ -49,5 +49,11 @@ return [
     'To Process' => 'Uz apstrādi',
     'In Out' => 'Iekšā/ārā',
     'Pack ID' => 'Pakas ID',
-    'Store Product ID' => 'Store Product ID'
+    'Store Product ID' => 'Store Product ID',
+    'List "{name}"' => 'Saraksts "{name}"',
+    'Lists' => 'Saraksts',
+    'List {name}' => 'Saraksts "{name}"',
+    'Product not found' => 'Nomenklatūra nav atrasta',
+    'Quantity' => 'Daudzums',
+    'Created' => 'Izveidots'
 ];

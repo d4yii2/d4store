@@ -11,6 +11,9 @@ use d4yii2\d4store\models\forms\ProductList;
 class D4StoreLists extends BaseD4StoreLists
 {
 
+    /**
+     * @return ProductList[]
+     */
     public function loadList($cache): array
     {
 

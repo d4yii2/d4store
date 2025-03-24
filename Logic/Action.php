@@ -19,24 +19,21 @@ use yii\helpers\VarDumper;
 class Action
 {
 
-    /** @var \d4yii2\d4store\models\D4StoreStoreProduct */
-    private $_storeProduct;
+    private ?D4StoreStoreProduct $_storeProduct;
 
-    /** @var \DateTime */
-    private $_time;
+    private ?DateTime $_time;
 
-    /** @var D4StoreAction */
-    public $_action;
+    public ?D4StoreAction $_action = null;
 
     /**
      * pievieno store product un pārēķina daudzumu uz bāzes mērvienību
      * @param int $productId
      * @param float $qnt
      * @param int|null $unitId
-     * @param \DateTime|null $time
-     * @return \d4yii2\d4store\Logic\Action
+     * @param DateTime|null $time
+     * @return Action
      * @throws D3ActiveRecordException
-     * @throws \yii\db\Exception|\yii\base\Exception
+     * @throws Exception|\yii\base\Exception
      */
     public static function createProduct(
         int      $productId,
@@ -79,9 +76,9 @@ class Action
     /**
      * @param int $productId
      * @param float $qnt
-     * @param \DateTime|null $time
+     * @param DateTime|null $time
      * @return static
-     * @throws D3ActiveRecordException
+     * @throws D3ActiveRecordException|Exception
      */
     public static function createProductInOut(
         int      $productId,
@@ -113,8 +110,8 @@ class Action
 
     /**
      * Action constructor.
-     * @param \d4yii2\d4store\models\D4StoreStoreProduct|null $storeProduct
-     * @param \DateTime|null $time
+     * @param D4StoreStoreProduct|null $storeProduct
+     * @param DateTime|null $time
      */
     public function __construct(D4StoreStoreProduct $storeProduct = null, DateTime $time = null)
     {
@@ -123,7 +120,7 @@ class Action
     }
 
     /**
-     * @return \d4yii2\d4store\models\D4StoreStoreProduct
+     * @return D4StoreStoreProduct
      */
     public function getStoreProduct(): ?D4StoreStoreProduct
     {
@@ -131,7 +128,7 @@ class Action
     }
 
     /**
-     * @throws D3ActiveRecordException
+     * @throws D3ActiveRecordException|Exception
      */
     public function in(D4StoreStack $stack, $model): D4StoreAction
     {
@@ -150,7 +147,7 @@ class Action
     }
 
     /**
-     * @throws D3ActiveRecordException
+     * @throws D3ActiveRecordException|Exception
      */
     public function fromProcess(D4StoreStack $stack, $model): D4StoreAction
     {
@@ -224,7 +221,7 @@ class Action
 
     /**
      * @throws D3ActiveRecordException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function reservation(float $qnt, $model): D4StoreAction
     {
@@ -289,7 +286,8 @@ class Action
     }
 
     /**
-     * @throws D3ActiveRecordException
+     * move with reference model
+     * @throws D3ActiveRecordException|Exception
      */
     public function move(D4StoreStack $stack, $model = null): D4StoreAction
     {
@@ -311,21 +309,40 @@ class Action
     }
 
     /**
+     * write off with reference model
      * @param float $qnt
      * @param $model
-     * @return \d4yii2\d4store\models\D4StoreAction
-     * @throws D3ActiveRecordException
+     * @return D4StoreAction
+     * @throws D3ActiveRecordException|Exception
      */
     public function out(float $qnt, $model): D4StoreAction
     {
+        return $this->outSys(
+            $qnt,
+            SysModelsDictionary::getIdByClassName(get_class($model)),
+            $model->id
+        );
+    }
+
+    /**
+     * write off with model ref id and model record id
+     * @param float $qnt
+     * @param int $sysModelId
+     * @param int $modelRecordId
+     * @return D4StoreAction
+     * @throws D3ActiveRecordException
+     * @throws Exception
+     */
+    public function outSys(float $qnt, int $sysModelId, int $modelRecordId): D4StoreAction
+    {
         $this->setMoveActionsIsNotActive();
 
-        $this->newAction();
+        $this->_action = $this->newAction();
         $this->_action->setIsActiveYes();
         $this->_action->qnt = $qnt;
         $this->_action->setTypeOut();
-        $this->_action->ref_model_id = SysModelsDictionary::getIdByClassName(get_class($model));
-        $this->_action->ref_model_record_id = $model->id;
+        $this->_action->ref_model_id = $sysModelId;
+        $this->_action->ref_model_record_id = $modelRecordId;
         if (!$this->_action->save()) {
             throw new D3ActiveRecordException($this->_action);
         }
@@ -341,14 +358,31 @@ class Action
     }
 
     /**
-     * @throws D3ActiveRecordException
+     * add to action model ref by model
+     * @throws D3ActiveRecordException|Exception
      */
     public function addRef($model): D4StoreActionRef
     {
+        return $this->addRefSys(
+            SysModelsDictionary::getIdByClassName(get_class($model)),
+            $model->id
+        );
+    }
+
+    /**
+     * add to action model ref by ref_if and model record id
+     * @param int $sysModelId
+     * @param int $modelRecordId
+     * @return D4StoreActionRef
+     * @throws D3ActiveRecordException
+     * @throws Exception
+     */
+    public function addRefSys(int $sysModelId, int $modelRecordId): D4StoreActionRef
+    {
         $ref = new D4StoreActionRef();
         $ref->action_id = $this->_action->id;
-        $ref->model_id = SysModelsDictionary::getIdByClassName(get_class($model));
-        $ref->model_record_id = $model->id;
+        $ref->model_id = $sysModelId;
+        $ref->model_record_id = $modelRecordId;
         if (!$ref->save()) {
             throw new D3ActiveRecordException($ref);
         }
@@ -356,7 +390,7 @@ class Action
     }
 
     /**
-     * @throws D3ActiveRecordException
+     * @throws D3ActiveRecordException|Exception
      */
     private function setMoveActionsIsNotActive(): void
     {

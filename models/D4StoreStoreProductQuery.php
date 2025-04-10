@@ -9,7 +9,7 @@ use d3system\yii2\db\D3ActiveQuery;
 /**
  * This is the ActiveQuery class for [[D4StoreStoreProduct]].
  *
- * @see D4StoreStoreProduct
+ * @see D3productProduct
  * @method D4StoreAction getStoreActionActiveOne()
  */
 class D4StoreStoreProductQuery extends D3ActiveQuery

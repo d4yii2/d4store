@@ -7,10 +7,15 @@ use d3yii2\d3product\dictionaries\D3productUnitDictionary;
 use d3system\dictionaries\SysModelsDictionary;
 use d4yii2\d4store\models\base\D4StoreStoreProduct as BaseD4StoreStoreProduct;
 use Yii;
+use yii\db\Exception;
 use yii\web\HttpException;
 
 /**
  * This is the model class for table "d4store_store_product".
+ *
+ * @property-read D4StoreAction|null $storeActionActiveOne
+ * @property-read string|null $productCode
+ * @property-read null|string $unitLabel
  */
 class D4StoreStoreProduct extends BaseD4StoreStoreProduct
 {
@@ -19,7 +24,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
      * @param string $modelClassName
      * @param int $modelId
      * @return static
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public static function findByActionRef(string $modelClassName, int $modelId): ?self
     {
@@ -40,7 +45,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public static function findByAction(string $modelClassName, int $modelId)
     {
@@ -57,7 +62,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     }
 
     /**
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      */
     public function getModelIdFromRef(string $modelClassName): ?int
     {
@@ -74,6 +79,9 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
             ->scalar();
     }
 
+    /**
+     * @throws D3ActiveRecordException
+     */
     public function getModelIdFromBaseRef(string $modelClassName): ?int
     {
         return $this
@@ -88,7 +96,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
 
 
     /**
-     * @throws \yii\web\HttpException
+     * @throws HttpException
      * @return self|null
      */
     public static function findForController(int $id)
@@ -102,7 +110,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     }
 
     /**
-     * @return \d4yii2\d4store\models\D4StoreAction|null
+     * @return D4StoreAction|null
      * @noinspection PhpIncompatibleReturnTypeInspection
      */
     public function getStoreActionActiveOne(): ?D4StoreAction
@@ -124,6 +132,9 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
         return $this->product->unitConvertFromTo($this->remain_qnt, $this->product->unit_id, $toUnitId);
     }
 
+    /**
+     * @throws Exception
+     */
     public function getUnitLabel(): ?string
     {
         return D3productUnitDictionary::getLabel(Yii::$app->SysCmp->getActiveCompanyId(), $this->product->unit_id);
@@ -133,7 +144,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
      * @param int $refTypeId
      * @param int $recordId
      * @return void
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException|Exception
      */
     public function addRef(int $refTypeId, int $recordId): void
     {
@@ -144,5 +155,41 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
         if (!$ref->save()) {
             throw new D3ActiveRecordException($ref);
         }
+    }
+
+    /**
+     * @throws D3ActiveRecordException
+     * @throws Exception
+     * @throws \yii\base\Exception
+     */
+    public function afterSave($insert, $changedAttributes): void
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if (!$this->code) {
+            $this->code = Yii::$app->storeProductRecorder->getCodeOrCreate($this->id);
+            $this->save();
+        }
+    }
+
+    /**
+     * @depracated velāk jāizmet ārā, jo code ģenere afterSave())
+     * @throws D3ActiveRecordException
+     * @throws Exception
+     * @throws \yii\base\Exception
+     */
+    public function getProductCode(): ?string
+    {
+        if ($this->code) {
+            return $this->code;
+        }
+        if ($this->isNewRecord) {
+            return null;
+        }
+        $this->code = Yii::$app->storeProductRecorder->getCodeOrCreate($this->id);
+        if ($model = self::findOne($this->id)) {
+            $model->code = $this->code;
+            $model->save();
+        }
+        return $this->code;
     }
 }

@@ -2,9 +2,11 @@
 
 namespace d4yii2\d4store\models;
 
+use d4modules\manufacture\models\MTask;
 use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3product\dictionaries\D3productUnitDictionary;
 use d3system\dictionaries\SysModelsDictionary;
+use d4modules\manufacture\models\MAction;
 use d4yii2\d4store\models\base\D4StoreStoreProduct as BaseD4StoreStoreProduct;
 use Yii;
 use yii\db\Exception;
@@ -94,10 +96,10 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     }
 
 
-
     /**
-     * @throws HttpException
+     * @param int $id
      * @return self|null
+     * @throws HttpException
      */
     public static function findForController(int $id)
     {
@@ -191,5 +193,36 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
             $model->save();
         }
         return $this->code;
+    }
+
+    /**
+     * find manufacturing task
+     * @throws D3ActiveRecordException
+     */
+    public function findManufactureTask(): ?MTask
+    {
+        return MTask::find()
+            ->innerJoin(
+                'm_action',
+                'm_task.id = m_action.task_id'
+            )
+            ->innerJoin(
+                'd4store_action_ref',
+                'd4store_action_ref.model_record_id = m_action.id 
+                AND d4store_action_ref.model_id = :mActionClassSysId',
+                [
+                    ':mActionClassSysId' => SysModelsDictionary::getIdByClassName(MAction::class)
+                ]
+            )
+            ->innerJoin(
+                'd4store_action',
+                'd4store_action.id = d4store_action_ref.action_id'
+            )
+            ->where([
+                'd4store_action.store_product_id' => $this->id,
+
+                'd4store_action.type' => D4StoreAction::TYPE_FROM_PROCESS,
+            ])
+            ->one();
     }
 }

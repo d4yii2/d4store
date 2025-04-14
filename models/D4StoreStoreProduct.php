@@ -196,33 +196,23 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     }
 
     /**
-     * find manufacturing task
+     * find store product ref model record id for action
      * @throws D3ActiveRecordException
      */
-    public function findManufactureTask(): ?MTask
+    public function findRefModelRecordId( string $actionType, string $modelClassName): ?int
     {
-        return MTask::find()
-            ->innerJoin(
-                'm_action',
-                'm_task.id = m_action.task_id'
-            )
-            ->innerJoin(
-                'd4store_action_ref',
-                'd4store_action_ref.model_record_id = m_action.id 
-                AND d4store_action_ref.model_id = :mActionClassSysId',
-                [
-                    ':mActionClassSysId' => SysModelsDictionary::getIdByClassName(MAction::class)
-                ]
-            )
+        return
+            D4StoreActionRef::find()
+                ->select('d4store_action_ref.model_record_id')
             ->innerJoin(
                 'd4store_action',
                 'd4store_action.id = d4store_action_ref.action_id'
             )
             ->where([
                 'd4store_action.store_product_id' => $this->id,
-
-                'd4store_action.type' => D4StoreAction::TYPE_FROM_PROCESS,
+                'd4store_action.type' => $actionType,
+                'd4store_action_ref.model_id' => SysModelsDictionary::getIdByClassName($modelClassName)
             ])
-            ->one();
+            ->scalar();
     }
 }

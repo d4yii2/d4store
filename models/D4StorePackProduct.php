@@ -3,7 +3,9 @@
 namespace d4yii2\d4store\models;
 
 use d4yii2\d4store\models\base\D4StorePackProduct as BaseD4StorePackProduct;
+use Throwable;
 use Yii;
+use yii\db\StaleObjectException;
 
 /**
  * This is the model class for table "d4store_pack_product".
@@ -22,6 +24,15 @@ class D4StorePackProduct extends BaseD4StorePackProduct
             $history->user = $userId;
         }
 
+        return parent::delete();
+    }
+
+    /**
+     * @throws StaleObjectException
+     * @throws Throwable
+     */
+    public function realDelete(): bool
+    {
         return parent::delete();
     }
 }

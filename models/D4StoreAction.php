@@ -3,6 +3,7 @@
 namespace d4yii2\d4store\models;
 
 use d3system\dictionaries\SysModelsDictionary;
+use d3system\exceptions\D3ActiveRecordException;
 use d4yii2\d4store\models\base\D4StoreAction as BaseD4StoreAction;
 
 /**
@@ -15,6 +16,10 @@ class D4StoreAction extends BaseD4StoreAction
         D4StoreAction::TYPE_MOVE,
         D4StoreAction::TYPE_FROM_PROCESS,
     ];
+
+    /**
+     * @throws D3ActiveRecordException
+     */
     public function getModelIdFromAllActionsRef(string $modelClassName): ?int
     {
         return self::find()
@@ -30,6 +35,9 @@ class D4StoreAction extends BaseD4StoreAction
             ->scalar();
     }
 
+    /**
+     * @throws D3ActiveRecordException
+     */
     public function getModelIdFromActionRef(string $modelClassName): ?int
     {
         return $this->getD4StoreActionRefs()
@@ -38,5 +46,14 @@ class D4StoreAction extends BaseD4StoreAction
                 'd4store_action_ref.model_id' => SysModelsDictionary::getIdByClassName($modelClassName)
             ])
             ->scalar();
+    }
+
+    public function delete()
+    {
+        $this->refresh();
+        foreach ($this->d4StoreActionRefs as $d4StoreActionRef) {
+            $d4StoreActionRef->delete();
+        }
+        return parent::delete();
     }
 }

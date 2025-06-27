@@ -2,14 +2,16 @@
 
 namespace d4yii2\d4store\models;
 
-use d4modules\manufacture\models\MTask;
 use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3product\dictionaries\D3productUnitDictionary;
 use d3system\dictionaries\SysModelsDictionary;
-use d4modules\manufacture\models\MAction;
 use d4yii2\d4store\models\base\D4StoreStoreProduct as BaseD4StoreStoreProduct;
+use Throwable;
 use Yii;
+use yii\base\UserException;
 use yii\db\Exception;
+use yii\db\StaleObjectException;
+use yii\helpers\Json;
 use yii\web\HttpException;
 
 /**
@@ -64,6 +66,92 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
     }
 
     /**
+     * @param int $rkInvoiceProductId
+     * @param string $className
+     * @throws D3ActiveRecordException
+     * @throws UserException
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public static function deleteByRkInvoiceProductId(int $rkInvoiceProductId, string $className): void
+    {
+        $rkInvoiceProductSysModelId = SysModelsDictionary::getIdByClassName($className);
+        $actionRef = D4StoreActionRef::findOne([
+                'model_record_id' => $rkInvoiceProductId,
+                'model_id' => $rkInvoiceProductSysModelId
+            ]);
+
+        /** no found action ref */
+        if (!$actionRef) {
+            return;
+        }
+        $action = $actionRef->action;
+        $storeProduct = $action->storeProduct;
+        $action->delete();
+        $storeProduct->delete();
+    }
+
+    public function delete()
+    {
+        $this->canDelete();
+        foreach ($this->d4StorePackProductHistories as $d4StorePackProductHistory)  {
+            $d4StorePackProductHistory->delete();
+        }
+        foreach ($this->d4StorePackProducts as $d4StorePackProduct) {
+            $pack = $d4StorePackProduct->pack;
+            $d4StorePackProduct->realDelete();
+            if ($pack) {
+                $pack->delete();
+            }
+        }
+        return parent::delete();
+    }
+
+    /**
+     * @throws UserException
+     */
+    public function canDelete(): void
+    {
+        if ($this->reserved_qnt > 0) {
+            $message = [
+                'message' => Yii::t('d4store',
+                    'Cannot delete "{productName}" from store with reserved quantity.',
+                    [
+                        'productName' => $this->product->name,
+                    ]
+                ),
+                'ExternalLink' => [
+                    'text' => Yii::t('d4store','Store Product Card'),
+                    'url' => [
+                        '/d4storei/store-product/view',
+                        'id' => $this->id,
+                    ]
+                ]
+            ];
+            throw new UserException(Json::encode($message));
+        }
+
+        if ($this->qnt !==  $this->remain_qnt) {
+            $message = [
+                'message' => Yii::t('d4store',
+                    'Cannot delete already used product "{productName}" from store.',
+                    [
+                        'productName' => $this->product->name,
+                    ]
+                ),
+                'ExternalLink' => [
+                    'text' => Yii::t('d4store','Store Product Card'),
+                    'url' => [
+                        '/d4storei/store-product/view',
+                        'id' => $this->id,
+                    ]
+                ]
+            ];
+            throw new UserException(Json::encode($message));
+        }
+    }
+
+    /**
      * @throws D3ActiveRecordException
      */
     public function getModelIdFromRef(string $modelClassName): ?int
@@ -101,7 +189,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
      * @return self|null
      * @throws HttpException
      */
-    public static function findForController(int $id)
+    public static function findForController(int $id): ?D4StoreStoreProduct
     {
         $model = self::findOne($id);
         if (!$model) {

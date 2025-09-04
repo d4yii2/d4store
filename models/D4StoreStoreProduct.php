@@ -189,7 +189,7 @@ class D4StoreStoreProduct extends BaseD4StoreStoreProduct
      * @return self|null
      * @throws HttpException
      */
-    public static function findForController(int $id): ?D4StoreStoreProduct
+    public static function findForController(int $id)
     {
         $model = self::findOne($id);
         if (!$model) {
